@@ -1,0 +1,23 @@
+# Continuous forex paper deployment.
+#   docker compose up -d --build      # start 24/5 paper loop
+#   docker compose logs -f trader     # watch
+# The image is paper-only by design. To route to an OANDA *practice*
+# account, uncomment the environment block and fill your practice creds.
+services:
+  trader:
+    build: .
+    container_name: algotrader-forex
+    restart: unless-stopped
+    entrypoint: ["python", "run_forex.py"]
+    command: ["deploy", "--pairs", "EURUSD", "GBPUSD", "USDJPY"]
+    volumes:
+      - ./runtime:/app/runtime          # metrics.json for the dashboard
+    # environment:
+    #   ALGO_TRADING_MODE: live
+    #   ALGO_LIVE_CONFIRM: I_UNDERSTAND_THE_RISKS
+    #   OANDA_API_TOKEN: your-practice-token
+    #   OANDA_ACCOUNT_ID: your-practice-account
+    #   # OANDA_REAL_MONEY is deliberately NOT listed here.
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
