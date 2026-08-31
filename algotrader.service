@@ -1,0 +1,21 @@
+# systemd unit for bare-VPS deployment (alternative to Docker).
+# sudo cp algotrader.service /etc/systemd/system/
+# sudo systemctl daemon-reload && sudo systemctl enable --now algotrader
+[Unit]
+Description=AlgoTrader forex paper loop
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=trader
+WorkingDirectory=/opt/algotrader
+ExecStart=/usr/bin/python3 run_forex.py deploy --pairs EURUSD GBPUSD USDJPY
+Restart=on-failure
+RestartSec=30
+Environment=ALGO_TRADING_MODE=paper
+MemoryMax=1G
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
